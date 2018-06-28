@@ -1,0 +1,20 @@
+<div>
+    <div>
+
+        <img class="phone" ng-src="{{thumbnail}}">
+
+        <a ng-href="/angular-phones-application-PSU-1-31/public/">Home</a>
+        <button>Add to basket</button>
+
+        <h1 ng-bind="phone.name"></h1>
+
+        <p ng-bind="phone.description"></p>
+
+        <ul class="phone-thumbs">
+            <li ng-repeat="photo in phone.images">
+                <img ng-click="setThumbnail(photo)" ng-src="{{photo}}">
+            </li>
+        </ul>
+
+    </div>
+</div>

@@ -1,11 +1,9 @@
 <ul class="phones">
-    <li class="thumbnail">
-        <a href="#!/phones/motorola-xoom-with-wi-fi" class="thumb">
-            <img alt="Motorola XOOM™ with Wi-Fi" src="img/phones/motorola-xoom-with-wi-fi.0.jpg">
+    <li ng-repeat="phone in phones" class="thumbnail">
+        <a ng-href="single-phone/{{phone.id}}" class="thumb">
+            <img alt="{{phone.name}}" ng-src="{{phone.imageUrl}}">
         </a>
-        <a href="#!/phones/motorola-xoom-with-wi-fi">Motorola XOOM™ with Wi-Fi</a>
-        <p>The Next, Next Generation
-
-            Experience the future with Motorola XOOM with Wi-Fi, the world's first tablet powered by Android 3.0 (Honeycomb).</p>
+        <a ng-href="single-phone/{{phone.id}}" ng-bind="phone.name"></a>
+        <p ng-bind="phone.snippet" ></p>
     </li>
 </ul>
