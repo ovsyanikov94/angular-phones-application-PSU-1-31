@@ -1,10 +1,63 @@
 <!DOCTYPE html>
-<html lang="en">
+<html ng-app="PhoneApplication" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <base href="/angular-phones-application-PSU-1-31/" >
+
+    <script src="../node_modules/angular/angular.js" ></script>
+    <script src="../node_modules/angular-route/angular-route.js" ></script>
+
+    <script src="js/index.js" ></script>
+
+    <title> Phones - application. AngularJS </title>
+
 </head>
 <body>
+
+
+<div>
+    <div>
+        <div class="container-fluid">
+            <div class="row">
+
+                <div class="col-md-2">
+                    <!--Sidebar content-->
+
+                    <section>
+                        <p>
+                            Search:
+                            <input>
+                        </p>
+
+                        <p>
+                            Sort by:
+                            <select>
+                                <option value="name">Alphabetical</option>
+                                <option value="age">Newest</option>
+                            </select>
+                        </p>
+                    </section>
+
+                    <section>
+                        <p>Shopping Cart</p>
+                        <ul>
+                            <li>Phone 1</li>
+                            <li>Phone 2</li>
+                            <li>Phone 3</li>
+                        </ul>
+                    </section>
+
+
+                </div>
+
+                <div ng-view class="col-md-10"></div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 </body>
 </html>
