@@ -4,7 +4,7 @@
         <img class="phone" ng-src="{{thumbnail}}">
 
         <a ng-href="/angular-phones-application-PSU-1-31/public/">Home</a>
-        <button>Add to basket</button>
+        <button ng-click="addPhoneToCart(phone)" >Add to basket</button>
 
         <h1 ng-bind="phone.name"></h1>
 
