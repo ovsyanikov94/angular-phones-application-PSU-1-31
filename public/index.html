@@ -20,7 +20,7 @@
 
 <div>
     <div>
-        <div class="container-fluid" ng-controller="CartController">
+        <div class="container-fluid" >
 
             <div class="row">
 
@@ -42,7 +42,7 @@
                         </p>
                     </section>
 
-                    <section >
+                    <section ng-controller="CartController" >
                         <p>Shopping Cart</p>
 
                         <div style="color: red;" ng-if="cart.length === 0" >Cart is empty!</div>

@@ -98,25 +98,38 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _controllers_CatalogueController__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./controllers/CatalogueController */ "./application/controllers/CatalogueController.js");
 /* harmony import */ var _controllers_PhoneController__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./controllers/PhoneController */ "./application/controllers/PhoneController.js");
 /* harmony import */ var _controllers_CartController__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./controllers/CartController */ "./application/controllers/CartController.js");
+/* harmony import */ var _services_CartService__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./services/CartService */ "./application/services/CartService.js");
+/* harmony import */ var _services_PhoneService__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./services/PhoneService */ "./application/services/PhoneService.js");
+
+
+//====================CONTROLLERS===========================//
 
 
 
+
+//====================SERVICES==============================//
 
 
 
 angular.module('PhoneApplication.controllers' , []);
+angular.module('PhoneApplication.services' , []);
 
 angular.module('PhoneApplication.controllers')
     .controller(
         'CartController' ,
-        ['$scope' , _controllers_CartController__WEBPACK_IMPORTED_MODULE_2__["default"]]
+        ['$scope' , 'CartService' , _controllers_CartController__WEBPACK_IMPORTED_MODULE_2__["default"]]
     );
 
+angular.module('PhoneApplication.services')
+    .service( 'CartService'  , _services_CartService__WEBPACK_IMPORTED_MODULE_3__["default"]);
 
+angular.module('PhoneApplication.services')
+    .service( 'PhoneService'  , _services_PhoneService__WEBPACK_IMPORTED_MODULE_4__["default"]);
 
 let app = angular.module('PhoneApplication',[
     'ngRoute',
-    'PhoneApplication.controllers'
+    'PhoneApplication.controllers',
+    'PhoneApplication.services'
 ]);
 
 
@@ -128,13 +141,13 @@ app.config( [ '$routeProvider' , '$locationProvider'  , ($routeProvider , $locat
     $routeProvider.when('/' , {
 
         templateUrl: 'templates/catalogue.html',
-        controller: [  '$scope' , '$http'  , _controllers_CatalogueController__WEBPACK_IMPORTED_MODULE_0__["default"] ]
+        controller: [  '$scope' , 'PhoneService' , _controllers_CatalogueController__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 
     });
 
     $routeProvider.when('/single-phone/:phoneID' , {
 
-        controller: [ '$scope', '$http' , '$routeParams' , _controllers_PhoneController__WEBPACK_IMPORTED_MODULE_1__["default"]],
+        controller: [ '$scope', '$routeParams' , 'CartService' , 'PhoneService' , _controllers_PhoneController__WEBPACK_IMPORTED_MODULE_1__["default"]],
         templateUrl: 'templates/single-phone.html'
 
     });
@@ -159,55 +172,12 @@ __webpack_require__.r(__webpack_exports__);
 
 class CartController{
 
-    constructor( $scope ){
+    constructor( $scope , CartService ){
 
-        $scope.cart = [];
-        $scope.addPhoneToCart = this._addPhone.bind(this , $scope);
-        $scope.RemoveItem = this._removePhone.bind( null , $scope );
+        $scope.cart = CartService.getCart();
 
-    }
-
-    _addPhone( $scope , phone){
-
-        let exists = $scope.cart.some( p => {
-            return p.id === phone.id;
-        } );
-
-        if(!exists){
-            $scope.cart.push( this._getSimplePhone( phone ) );
-        }//if
-        else{
-
-            for ( let i = 0 ; i < $scope.cart.length ;  i++ ){
-
-                let p = $scope.cart[i];
-
-                if(p.id === phone.id){
-
-                    p.amount++;
-
-                    break;
-
-                }//if
-
-            }//for i
-
-        }//else
-
-    }//_addPhone
-
-    _removePhone( $scope , index ){
-
-       $scope.cart.splice( index , 1 );
-
-    }
-
-    _getSimplePhone( phone ){
-
-        return {
-            'id' : phone.id,
-            'amount' : phone.amount || 1,
-            'name' : phone.name,
+        $scope.RemoveItem = function ( index ){
+            CartService.removePhone( index );
         };
 
     }
@@ -230,12 +200,15 @@ __webpack_require__.r(__webpack_exports__);
 
 class CatalogueController{
 
-    constructor( $scope , $http ){
+    constructor( $scope , PhoneService){
 
 
-        $http.get(`phones/phones.json`)
-            .then( response => {
-                $scope.phones = response.data;
+        PhoneService.getPhones(`phones/phones.json`)
+            .then( phones => {
+                console.log('phones' , phones);
+                $scope.phones = phones;
+                $scope.$apply();
+
             } )
             .catch( error => {
                 console.log("EXCEPTION: " , error)
@@ -262,34 +235,170 @@ __webpack_require__.r(__webpack_exports__);
 
 class PhoneController{
 
-    constructor($scope, $http , $routeParams ){
+    constructor($scope, $routeParams , CartService , PhoneService){
 
         let id = $routeParams.phoneID;
 
-        $http.get(`phones/${id}.json`)
-            .then( response => {
+        $scope.addPhoneToCart = function ( phone ){
+            CartService.addPhone( phone );
+        };
 
-                $scope.phone = response.data;
-                $scope.thumbnail = $scope.phone.images[0];
-
-            } )
+        PhoneService.getSinglePhone(`phones/${id}.json`)
+            .then(
+                phone => {
+                    $scope.phone = phone;
+                    $scope.thumbnail = phone.images[0];
+                    $scope.$apply();
+                }
+            )
             .catch( error => {
-                console.log("EXCEPTION: " , error)
-            } )
-
-        //this.$scope = $scope;
+                console.log('error' , error);
+            } );
 
         $scope.setThumbnail = this._setThumbnail.bind( this, $scope );
 
     }
 
     _setThumbnail($scope , photo ){
-        //angularJS => ng-click => _setThumbnail.call( this , $scope , photo )
+
         $scope.thumbnail = photo;
 
     }//_setThumbnail
 
 }
+
+/***/ }),
+
+/***/ "./application/services/CartService.js":
+/*!*********************************************!*\
+  !*** ./application/services/CartService.js ***!
+  \*********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return CartService; });
+
+
+
+class CartService{
+
+    constructor(  ){
+
+       this.cart = [];
+
+    }
+
+    getCart(){
+        return this.cart;
+    }
+
+    addPhone( phone ){
+
+        let exists = this.cart.some( p => {
+            return p.id === phone.id;
+        } );
+
+        if(!exists){
+            this.cart.push( this._getSimplePhone( phone ) );
+        }//if
+        else{
+
+            for ( let i = 0 ; i < this.cart.length ;  i++ ){
+
+                let p = this.cart[i];
+
+                if(p.id === phone.id){
+
+                    p.amount++;
+
+                    break;
+
+                }//if
+
+            }//for i
+
+        }//else
+
+    }
+
+    _getSimplePhone( phone ){
+
+        return {
+            'id' : phone.id,
+            'amount' : phone.amount || 1,
+            'name' : phone.name,
+        };
+
+    }
+
+    removePhone( index ){
+
+        this.cart.splice( index , 1 );
+    }
+
+}
+
+
+/***/ }),
+
+/***/ "./application/services/PhoneService.js":
+/*!**********************************************!*\
+  !*** ./application/services/PhoneService.js ***!
+  \**********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return PhoneService; });
+
+
+class PhoneService{
+
+    constructor( $http ){
+
+        this.$http = $http;
+
+    }
+
+    async getPhones( url ){
+
+        try{
+            let result = await this.$http.get( url );
+
+            return result.data;
+
+        }//try
+        catch(ex){
+
+            console.log("Exception: getPhones" , ex);
+            return [];
+
+        }//catch
+    }
+
+    async getSinglePhone( url ){
+
+
+        try{
+            let result = await this.$http.get( url );
+
+            return result.data;
+
+        }//try
+        catch(ex){
+
+            console.log("Exception: getPhones" , ex);
+            return null;
+
+        }//catch
+
+    }
+
+}
+
 
 /***/ })
 

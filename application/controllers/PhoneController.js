@@ -2,29 +2,32 @@
 
 export  default class PhoneController{
 
-    constructor($scope, $http , $routeParams ){
+    constructor($scope, $routeParams , CartService , PhoneService){
 
         let id = $routeParams.phoneID;
 
-        $http.get(`phones/${id}.json`)
-            .then( response => {
+        $scope.addPhoneToCart = function ( phone ){
+            CartService.addPhone( phone );
+        };
 
-                $scope.phone = response.data;
-                $scope.thumbnail = $scope.phone.images[0];
-
-            } )
+        PhoneService.getSinglePhone(`phones/${id}.json`)
+            .then(
+                phone => {
+                    $scope.phone = phone;
+                    $scope.thumbnail = phone.images[0];
+                    $scope.$apply();
+                }
+            )
             .catch( error => {
-                console.log("EXCEPTION: " , error)
-            } )
-
-        //this.$scope = $scope;
+                console.log('error' , error);
+            } );
 
         $scope.setThumbnail = this._setThumbnail.bind( this, $scope );
 
     }
 
     _setThumbnail($scope , photo ){
-        //angularJS => ng-click => _setThumbnail.call( this , $scope , photo )
+
         $scope.thumbnail = photo;
 
     }//_setThumbnail
