@@ -2,14 +2,26 @@
 
 import CatalogueController from './controllers/CatalogueController';
 import PhoneController from './controllers/PhoneController';
+import CartController from './controllers/CartController';
+
+angular.module('PhoneApplication.controllers' , []);
+
+angular.module('PhoneApplication.controllers')
+    .controller(
+        'CartController' ,
+        ['$scope' , CartController]
+    );
+
+
 
 let app = angular.module('PhoneApplication',[
-    'ngRoute'
+    'ngRoute',
+    'PhoneApplication.controllers'
 ]);
 
-app.config( [ '$routeProvider' , '$locationProvider'  , ($routeProvider , $locationProvider)=>{
 
-    console.log('config!');
+
+app.config( [ '$routeProvider' , '$locationProvider'  , ($routeProvider , $locationProvider)=>{
 
     $locationProvider.html5Mode(true);
 
