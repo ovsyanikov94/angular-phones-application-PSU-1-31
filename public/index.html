@@ -10,6 +10,8 @@
     <script src="../node_modules/angular/angular.js" ></script>
     <script src="../node_modules/angular-route/angular-route.js" ></script>
     <script src="../node_modules/angular-cookies/angular-cookies.js" ></script>
+    <script src="../node_modules/angular-local-storage/dist/angular-local-storage.js" ></script>
+
 
     <script src="js/index.js" ></script>
 
@@ -46,7 +48,9 @@
 
                     <section ng-controller="CartController" >
                         <p>Shopping Cart</p>
-
+                        <div ng-if="cart.length !== 0" >
+                            <button ng-click="ClearCart()" >Clear cart</button>
+                        </div>
                         <div style="color: red;" ng-if="cart.length === 0" >Cart is empty!</div>
 
                         <ul>

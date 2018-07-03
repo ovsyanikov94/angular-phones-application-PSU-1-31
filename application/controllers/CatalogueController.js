@@ -8,7 +8,7 @@ export default class CatalogueController{
 
         PhoneService.getPhones(`phones/phones.json`)
             .then( phones => {
-                console.log('phones' , phones);
+
                 $scope.phones = phones;
                 $scope.$apply();
 

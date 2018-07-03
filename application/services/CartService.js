@@ -3,16 +3,16 @@
 
 export default class CartService{
 
-    constructor( $cookies ){
+    constructor( localStorageService ){
 
-       if($cookies.get('cart')){
-           this.cart = JSON.parse($cookies.get('cart'))
+       if(localStorageService.get('cart')){
+           this.cart = localStorageService.get('cart');
        }//if
        else{
            this.cart = [];
        }//else
 
-       this.$cookies = $cookies;
+       this.localStorageService = localStorageService;
 
     }//constructor
 
@@ -47,7 +47,7 @@ export default class CartService{
 
         }//else
 
-        this.$cookies.put( 'cart' , JSON.stringify(this.cart) );
+        this.localStorageService.set( 'cart' , this.cart );
 
     }
 
@@ -61,11 +61,18 @@ export default class CartService{
 
     }
 
+    clearCart(){
+
+        this.localStorageService.clearAll();
+        this.cart.length = 0;
+
+    }
+
     removePhone( index ){
 
         this.cart.splice( index , 1 );
-        this.$cookies.put( 'cart' , JSON.stringify(this.cart) );
+        this.localStorageService.set( 'cart' , this.cart );
 
-    }
+    }//removePhone
 
 }

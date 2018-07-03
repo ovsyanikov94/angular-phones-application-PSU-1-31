@@ -35,16 +35,27 @@ angular.module('PhoneApplication.controllers')
 
         }]
     );
+//
+// angular.module('PhoneApplication.services')
+//     .service( 'CartService'  ,[ '$cookies' , CartService ]);
 
 angular.module('PhoneApplication.services')
-    .service( 'CartService'  ,[ '$cookies' , CartService ]);
+    .service( 'CartService'  ,[ 'localStorageService' , CartService ]);
 
 angular.module('PhoneApplication.services')
     .service( 'PhoneService'  , [ '$http' , PhoneService ]);
 
+// let app = angular.module('PhoneApplication',[
+//     'ngRoute',
+//     'ngCookies',
+//     'PhoneApplication.controllers',
+//     'PhoneApplication.filters',
+//     'PhoneApplication.services'
+// ]);
+
 let app = angular.module('PhoneApplication',[
     'ngRoute',
-    'ngCookies',
+    'LocalStorageModule',
     'PhoneApplication.controllers',
     'PhoneApplication.filters',
     'PhoneApplication.services'
@@ -52,16 +63,43 @@ let app = angular.module('PhoneApplication',[
 
 
 
-app.config( [ '$routeProvider' , '$locationProvider' , '$cookiesProvider' , ($routeProvider , $locationProvider , $cookiesProvider)=>{
+// app.config( [ '$routeProvider' , '$locationProvider' , '$cookiesProvider' , ($routeProvider , $locationProvider , $cookiesProvider)=>{
+//
+//     $locationProvider.html5Mode(true);
+//
+//     $cookiesProvider.defaults.path = '/';
+//
+//     let expires = new Date();
+//     expires.setDate( expires.getDate() + 3 );
+//
+//     $cookiesProvider.defaults.expires = expires;
+//
+//     $routeProvider.when('/' , {
+//
+//         templateUrl: 'templates/catalogue.html',
+//         controller: [  '$scope' , 'PhoneService', CatalogueController ]
+//
+//     });
+//
+//     $routeProvider.when('/single-phone/:phoneID' , {
+//
+//         controller: [ '$scope', '$routeParams' , 'CartService' , 'PhoneService' , PhoneController],
+//         templateUrl: 'templates/single-phone.html'
+//
+//     });
+//
+// } ] );
+
+app.config( [
+    '$routeProvider' ,
+    '$locationProvider' ,
+    'localStorageServiceProvider' ,
+    ($routeProvider , $locationProvider , localStorageServiceProvider)=>{
 
     $locationProvider.html5Mode(true);
 
-    $cookiesProvider.defaults.path = '/';
-
-    let expires = new Date();
-    expires.setDate( expires.getDate() + 3 );
-
-    $cookiesProvider.defaults.expires = expires;
+    localStorageServiceProvider.setStorageCookie( 7 , '/' );
+    localStorageServiceProvider.setStorageCookieDomain('localhost');
 
     $routeProvider.when('/' , {
 

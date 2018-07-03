@@ -21,6 +21,7 @@
   "devDependencies": {
     "angular": "^1.7.2",
     "angular-cookies": "^1.7.2",
+    "angular-local-storage": "^0.7.1",
     "angular-route": "^1.7.2",
     "webpack": "^4.12.2",
     "webpack-cli": "^3.0.8",
