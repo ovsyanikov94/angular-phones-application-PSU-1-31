@@ -3,11 +3,18 @@
 
 export default class CartService{
 
-    constructor(  ){
+    constructor( $cookies ){
 
-       this.cart = [];
+       if($cookies.get('cart')){
+           this.cart = JSON.parse($cookies.get('cart'))
+       }//if
+       else{
+           this.cart = [];
+       }//else
 
-    }
+       this.$cookies = $cookies;
+
+    }//constructor
 
     getCart(){
         return this.cart;
@@ -40,6 +47,8 @@ export default class CartService{
 
         }//else
 
+        this.$cookies.put( 'cart' , JSON.stringify(this.cart) );
+
     }
 
     _getSimplePhone( phone ){
@@ -55,6 +64,8 @@ export default class CartService{
     removePhone( index ){
 
         this.cart.splice( index , 1 );
+        this.$cookies.put( 'cart' , JSON.stringify(this.cart) );
+
     }
 
 }

@@ -9,6 +9,7 @@
 
     <script src="../node_modules/angular/angular.js" ></script>
     <script src="../node_modules/angular-route/angular-route.js" ></script>
+    <script src="../node_modules/angular-cookies/angular-cookies.js" ></script>
 
     <script src="js/index.js" ></script>
 
@@ -19,6 +20,7 @@
 
 
 <div>
+
     <div>
         <div class="container-fluid" >
 
@@ -27,10 +29,10 @@
                 <div class="col-md-2">
                     <!--Sidebar content-->
 
-                    <section>
+                    <section ng-controller="ExampleController" >
                         <p>
                             Search:
-                            <input>
+                            <input ng-model="searchObject.searchString" >
                         </p>
 
                         <p>
