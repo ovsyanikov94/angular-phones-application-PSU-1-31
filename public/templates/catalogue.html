@@ -1,5 +1,7 @@
-<ul class="phones">
-    <li ng-repeat="phone in phones" class="thumbnail">
+<h1 ng-if="searchObject.searchString">Результат поиска по запросу: "{{searchObject.searchString}}"</h1>
+<ul ng-if="phones" class="phones">
+    <!--<li ng-repeat="phone in phones | SearchPhonesFilter:searchObject.searchString:10:15" class="thumbnail">-->
+    <li ng-repeat="phone in phones | SearchPhonesFilter:searchObject.searchString" class="thumbnail">
         <a ng-href="single-phone/{{phone.id}}" class="thumb">
             <img alt="{{phone.name}}" ng-src="{{phone.imageUrl}}">
         </a>
