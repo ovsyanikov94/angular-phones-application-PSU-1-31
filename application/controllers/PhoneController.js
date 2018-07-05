@@ -10,17 +10,28 @@ export  default class PhoneController{
             CartService.addPhone( phone );
         };
 
+        $scope.contentLoaded = false;
+
+        $scope.includeTemplate = function (){
+
+            return $scope.contentLoaded ? 'templates/scripts.html' : '';
+
+        };
+
         PhoneService.getSinglePhone(`phones/${id}.json`)
             .then(
                 phone => {
+
                     $scope.phone = phone;
                     $scope.thumbnail = phone.images[0];
+                    $scope.contentLoaded = true;
                     $scope.$apply();
-                }
-            )
+
+                }// phone
+            )// then
             .catch( error => {
                 console.log('error' , error);
-            } );
+            } );//catch
 
         $scope.setThumbnail = this._setThumbnail.bind( this, $scope );
 
