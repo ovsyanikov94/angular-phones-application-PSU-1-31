@@ -1,11 +1,24 @@
+
 <h1 ng-if="searchObject.searchString">Результат поиска по запросу: "{{searchObject.searchString}}"</h1>
-<ul ng-if="phones" class="phones">
-    <!--<li ng-repeat="phone in phones | SearchPhonesFilter:searchObject.searchString:10:15" class="thumbnail">-->
-    <li ng-repeat="phone in phones | SearchPhonesFilter:searchObject.searchString" class="thumbnail">
-        <a ng-href="single-phone/{{phone.id}}" class="thumb">
-            <img alt="{{phone.name}}" ng-src="{{phone.imageUrl}}">
-        </a>
-        <a ng-href="single-phone/{{phone.id}}" ng-bind="phone.name"></a>
-        <p ng-bind="phone.snippet" ></p>
-    </li>
+
+<ul
+        class="phones"
+        phones-list-directive
+        data-phones-list-array="phones"
+        data-search-object="searchObject"
+>
+
 </ul>
+
+<!--<hr>-->
+<!--<ul class="phones">-->
+
+    <!--<phones-list-directive-->
+            <!---->
+            <!--data-phones-list-array="phones"-->
+            <!--data-search-object="searchObject"-->
+    <!--&gt;-->
+
+    <!--</phones-list-directive>-->
+
+<!--</ul>-->

@@ -1,3 +1,5 @@
+<phone  />
+
 <div>
     <div>
 
@@ -10,11 +12,18 @@
 
         <p ng-bind="phone.description"></p>
 
-        <ul class="phone-thumbs">
+        <images list="phone.images" ></images>
+
+        <ul id="PhonesOwlCarousel" style="list-style-type: none" class="owl-theme owl-carousel">
             <li ng-repeat="photo in phone.images">
-                <img ng-click="setThumbnail(photo)" ng-src="{{photo}}">
+
+                <img ng-src="{{photo}}">
+                <div ng-include="includeTemplate()"></div>
+
             </li>
         </ul>
+
+
 
     </div>
 </div>

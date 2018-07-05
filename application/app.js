@@ -12,9 +12,13 @@ import PhoneService from './services/PhoneService';
 //====================FILTERS==============================//
 import SearchPhonesFilter from './filters/SearchPhonesFilter';
 
+//====================DIRECTIVES==============================//
+import PhonesList from './directives/phones-list';
+
 angular.module('PhoneApplication.controllers' , []);
 angular.module('PhoneApplication.services' , []);
 angular.module('PhoneApplication.filters' , []);
+angular.module('PhoneApplication.directives' , []);
 
 angular.module('PhoneApplication.controllers')
     .controller(
@@ -35,9 +39,6 @@ angular.module('PhoneApplication.controllers')
 
         }]
     );
-//
-// angular.module('PhoneApplication.services')
-//     .service( 'CartService'  ,[ '$cookies' , CartService ]);
 
 angular.module('PhoneApplication.services')
     .service( 'CartService'  ,[ 'localStorageService' , CartService ]);
@@ -45,50 +46,17 @@ angular.module('PhoneApplication.services')
 angular.module('PhoneApplication.services')
     .service( 'PhoneService'  , [ '$http' , PhoneService ]);
 
-// let app = angular.module('PhoneApplication',[
-//     'ngRoute',
-//     'ngCookies',
-//     'PhoneApplication.controllers',
-//     'PhoneApplication.filters',
-//     'PhoneApplication.services'
-// ]);
+angular.module('PhoneApplication.directives' )
+    .directive('phonesListDirective' , PhonesList);
 
 let app = angular.module('PhoneApplication',[
     'ngRoute',
     'LocalStorageModule',
     'PhoneApplication.controllers',
     'PhoneApplication.filters',
-    'PhoneApplication.services'
+    'PhoneApplication.services',
+    'PhoneApplication.directives'
 ]);
-
-
-
-// app.config( [ '$routeProvider' , '$locationProvider' , '$cookiesProvider' , ($routeProvider , $locationProvider , $cookiesProvider)=>{
-//
-//     $locationProvider.html5Mode(true);
-//
-//     $cookiesProvider.defaults.path = '/';
-//
-//     let expires = new Date();
-//     expires.setDate( expires.getDate() + 3 );
-//
-//     $cookiesProvider.defaults.expires = expires;
-//
-//     $routeProvider.when('/' , {
-//
-//         templateUrl: 'templates/catalogue.html',
-//         controller: [  '$scope' , 'PhoneService', CatalogueController ]
-//
-//     });
-//
-//     $routeProvider.when('/single-phone/:phoneID' , {
-//
-//         controller: [ '$scope', '$routeParams' , 'CartService' , 'PhoneService' , PhoneController],
-//         templateUrl: 'templates/single-phone.html'
-//
-//     });
-//
-// } ] );
 
 app.config( [
     '$routeProvider' ,
@@ -104,7 +72,12 @@ app.config( [
     $routeProvider.when('/' , {
 
         templateUrl: 'templates/catalogue.html',
-        controller: [  '$scope' , 'PhoneService', CatalogueController ]
+        controller: [  '$scope' , 'PhoneService' , 'phones' , CatalogueController ],
+        resolve: {
+            'phones': [ 'PhoneService' , function (PhoneService){
+                return PhoneService.getPhones(`phones/phones.json`);
+            }]
+        }
 
     });
 

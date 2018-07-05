@@ -101,6 +101,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _services_CartService__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./services/CartService */ "./application/services/CartService.js");
 /* harmony import */ var _services_PhoneService__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./services/PhoneService */ "./application/services/PhoneService.js");
 /* harmony import */ var _filters_SearchPhonesFilter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./filters/SearchPhonesFilter */ "./application/filters/SearchPhonesFilter.js");
+/* harmony import */ var _directives_phones_list__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./directives/phones-list */ "./application/directives/phones-list.js");
 
 
 //====================CONTROLLERS===========================//
@@ -115,9 +116,13 @@ __webpack_require__.r(__webpack_exports__);
 //====================FILTERS==============================//
 
 
+//====================DIRECTIVES==============================//
+
+
 angular.module('PhoneApplication.controllers' , []);
 angular.module('PhoneApplication.services' , []);
 angular.module('PhoneApplication.filters' , []);
+angular.module('PhoneApplication.directives' , []);
 
 angular.module('PhoneApplication.controllers')
     .controller(
@@ -138,9 +143,6 @@ angular.module('PhoneApplication.controllers')
 
         }]
     );
-//
-// angular.module('PhoneApplication.services')
-//     .service( 'CartService'  ,[ '$cookies' , CartService ]);
 
 angular.module('PhoneApplication.services')
     .service( 'CartService'  ,[ 'localStorageService' , _services_CartService__WEBPACK_IMPORTED_MODULE_3__["default"] ]);
@@ -148,50 +150,17 @@ angular.module('PhoneApplication.services')
 angular.module('PhoneApplication.services')
     .service( 'PhoneService'  , [ '$http' , _services_PhoneService__WEBPACK_IMPORTED_MODULE_4__["default"] ]);
 
-// let app = angular.module('PhoneApplication',[
-//     'ngRoute',
-//     'ngCookies',
-//     'PhoneApplication.controllers',
-//     'PhoneApplication.filters',
-//     'PhoneApplication.services'
-// ]);
+angular.module('PhoneApplication.directives' )
+    .directive('phonesListDirective' , _directives_phones_list__WEBPACK_IMPORTED_MODULE_6__["default"]);
 
 let app = angular.module('PhoneApplication',[
     'ngRoute',
     'LocalStorageModule',
     'PhoneApplication.controllers',
     'PhoneApplication.filters',
-    'PhoneApplication.services'
+    'PhoneApplication.services',
+    'PhoneApplication.directives'
 ]);
-
-
-
-// app.config( [ '$routeProvider' , '$locationProvider' , '$cookiesProvider' , ($routeProvider , $locationProvider , $cookiesProvider)=>{
-//
-//     $locationProvider.html5Mode(true);
-//
-//     $cookiesProvider.defaults.path = '/';
-//
-//     let expires = new Date();
-//     expires.setDate( expires.getDate() + 3 );
-//
-//     $cookiesProvider.defaults.expires = expires;
-//
-//     $routeProvider.when('/' , {
-//
-//         templateUrl: 'templates/catalogue.html',
-//         controller: [  '$scope' , 'PhoneService', CatalogueController ]
-//
-//     });
-//
-//     $routeProvider.when('/single-phone/:phoneID' , {
-//
-//         controller: [ '$scope', '$routeParams' , 'CartService' , 'PhoneService' , PhoneController],
-//         templateUrl: 'templates/single-phone.html'
-//
-//     });
-//
-// } ] );
 
 app.config( [
     '$routeProvider' ,
@@ -207,7 +176,12 @@ app.config( [
     $routeProvider.when('/' , {
 
         templateUrl: 'templates/catalogue.html',
-        controller: [  '$scope' , 'PhoneService', _controllers_CatalogueController__WEBPACK_IMPORTED_MODULE_0__["default"] ]
+        controller: [  '$scope' , 'PhoneService' , 'phones' , _controllers_CatalogueController__WEBPACK_IMPORTED_MODULE_0__["default"] ],
+        resolve: {
+            'phones': [ 'PhoneService' , function (PhoneService){
+                return PhoneService.getPhones(`phones/phones.json`);
+            }]
+        }
 
     });
 
@@ -273,21 +247,11 @@ __webpack_require__.r(__webpack_exports__);
 
 class CatalogueController{
 
-    constructor( $scope , PhoneService){
+    constructor( $scope , PhoneService , phones ){
 
         $scope.searchObject = PhoneService.getSearchObject();
 
-        PhoneService.getPhones(`phones/phones.json`)
-            .then( phones => {
-
-                $scope.phones = phones;
-                $scope.$apply();
-
-            } )
-            .catch( error => {
-                console.log("EXCEPTION: " , error)
-            } )
-
+        $scope.phones = phones;
 
     }//constructor
 
@@ -317,17 +281,28 @@ class PhoneController{
             CartService.addPhone( phone );
         };
 
+        $scope.contentLoaded = false;
+
+        $scope.includeTemplate = function (){
+
+            return $scope.contentLoaded ? 'templates/scripts.html' : '';
+
+        };
+
         PhoneService.getSinglePhone(`phones/${id}.json`)
             .then(
                 phone => {
+
                     $scope.phone = phone;
                     $scope.thumbnail = phone.images[0];
+                    $scope.contentLoaded = true;
                     $scope.$apply();
-                }
-            )
+
+                }// phone
+            )// then
             .catch( error => {
                 console.log('error' , error);
-            } );
+            } );//catch
 
         $scope.setThumbnail = this._setThumbnail.bind( this, $scope );
 
@@ -340,6 +315,46 @@ class PhoneController{
     }//_setThumbnail
 
 }
+
+/***/ }),
+
+/***/ "./application/directives/phones-list.js":
+/*!***********************************************!*\
+  !*** ./application/directives/phones-list.js ***!
+  \***********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return PhonesList; });
+
+
+
+function PhonesList(){
+
+    return {
+
+        restrict: 'EAC',
+        scope:{
+            queryObject: '=searchObject',
+            phones: '=phonesListArray' // -> in html attribute === phones-list-array="phones"
+            //phones: '=' -> in html attribute === phones="phones"
+        },//scope
+        templateUrl: 'templates/directives/phones-list.html',
+        controller: ['$scope' , function ( $scope ){
+
+            $scope.phoneImageClick = function ( url ){
+
+                alert(url);
+
+            }
+
+        }]
+
+    }//return
+
+}//PhonesList
 
 /***/ }),
 
@@ -358,6 +373,8 @@ __webpack_require__.r(__webpack_exports__);
 function SearchPhonesFilter(){
 
     return function ( phones , searchString ){
+
+        console.log(phones , searchString);
 
         return phones.filter(
                 p =>
