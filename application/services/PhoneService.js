@@ -41,7 +41,7 @@ export default class PhoneService{
         }//try
         catch(ex){
 
-            console.log("Exception: getPhones" , ex);
+            console.log("Exception: getSinglePhone: " , ex);
             return null;
 
         }//catch
