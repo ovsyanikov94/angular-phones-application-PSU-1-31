@@ -11,10 +11,13 @@ import PhoneService from './services/PhoneService';
 
 //====================FILTERS==============================//
 import SearchPhonesFilter from './filters/SearchPhonesFilter';
+import DescriptionFilter from './filters/DescriptionFilter';
 
 //====================DIRECTIVES==============================//
 import PhonesList from './directives/phones-list';
 import SinglePhoneDirective from './directives/single-phone-directive';
+import CartDirective from './directives/cart-directive';
+
 
 angular.module('PhoneApplication.controllers' , []);
 angular.module('PhoneApplication.services' , []);
@@ -31,6 +34,9 @@ angular.module('PhoneApplication.controllers')
 angular.module('PhoneApplication.filters')
     .filter('SearchPhonesFilter' ,  SearchPhonesFilter); // test | SearchPhonesFilter
 
+angular.module('PhoneApplication.filters')
+    .filter('DescriptionFilter' ,  DescriptionFilter); // test | DescriptionFilter
+
 angular.module('PhoneApplication.controllers')
     .controller(
         'ExampleController' ,
@@ -42,7 +48,7 @@ angular.module('PhoneApplication.controllers')
     );
 
 angular.module('PhoneApplication.services')
-    .service( 'CartService'  ,[ 'localStorageService' , CartService ]);
+    .service( 'CartService'  ,[ 'localStorageService' , 'PhoneService' , CartService ]);
 
 angular.module('PhoneApplication.services')
     .service( 'PhoneService'  , [ '$http' , PhoneService ]);
@@ -53,7 +59,12 @@ angular.module('PhoneApplication.directives' )
 angular.module('PhoneApplication.directives' )
     .directive('singlePhoneDirective' , SinglePhoneDirective);
 
+angular.module('PhoneApplication.directives' )
+    .directive('cartDirective' , CartDirective);
+
+
 let app = angular.module('PhoneApplication',[
+    'angular-loading-bar',
     'ngRoute',
     'LocalStorageModule',
     'PhoneApplication.controllers',
@@ -66,9 +77,13 @@ app.config( [
     '$routeProvider' ,
     '$locationProvider' ,
     'localStorageServiceProvider' ,
-    ($routeProvider , $locationProvider , localStorageServiceProvider)=>{
+    'cfpLoadingBarProvider',
+    ($routeProvider , $locationProvider , localStorageServiceProvider , cfpLoadingBarProvider)=>{
 
     $locationProvider.html5Mode(true);
+
+    cfpLoadingBarProvider.includeSpinner = true;
+    cfpLoadingBarProvider.includeBar = true;
 
     localStorageServiceProvider.setStorageCookie( 7 , '/' );
     localStorageServiceProvider.setStorageCookieDomain('localhost');
@@ -98,6 +113,24 @@ app.config( [
                 return PhoneService.getSinglePhone(`phones/${id}.json`);
 
             } ]
+
+        }
+
+    });
+
+    $routeProvider.when('/cart' , {
+
+        templateUrl: 'templates/cart.html',
+        controller: [ '$scope' , 'phones' , function ($scope , phones ){
+
+            $scope.phones = phones;
+
+        } ],
+        resolve: {
+
+            'phones': [ 'CartService' , async function ( CartService ){
+                return await  CartService.getFullPhones();
+            }]
 
         }
 

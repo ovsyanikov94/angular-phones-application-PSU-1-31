@@ -3,7 +3,7 @@
 
 export default class CartService{
 
-    constructor( localStorageService ){
+    constructor( localStorageService , PhoneService ){
 
        if(localStorageService.get('cart')){
            this.cart = localStorageService.get('cart');
@@ -13,6 +13,7 @@ export default class CartService{
        }//else
 
        this.localStorageService = localStorageService;
+       this._phoneService = PhoneService;
 
     }//constructor
 
@@ -68,11 +69,38 @@ export default class CartService{
 
     }
 
+    OnItemRemove ( callback ){
+        this._removeCallback = callback;
+    }
+
     removePhone( index ){
 
         this.cart.splice( index , 1 );
+
+        if( this._removeCallback ){
+            this._removeCallback(index);
+        }//if
+
         this.localStorageService.set( 'cart' , this.cart );
 
     }//removePhone
+
+    async getFullPhones () {
+
+        let phones = [];
+
+        for ( let i = 0 ; i < this.cart.length ; i++  ){
+
+            let cartPhone = this.cart[i];
+            let phone = await this._phoneService.getSinglePhone( `phones/${cartPhone.id}.json` );
+            phone.amount = cartPhone.amount;
+
+            phones.push( phone );
+
+        }//for i
+
+        return phones;
+
+    }
 
 }

@@ -8,6 +8,8 @@ export default class CatalogueController{
 
         $scope.phones = phones;
 
+        //setInterval( PhoneService.getPhones.bind(PhoneService , `phones/phones.json`) , 20 );
+
     }//constructor
 
 }

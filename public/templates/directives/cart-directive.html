@@ -1,0 +1,15 @@
+<h3 ng-if="phones.length === 0" style="color: red;">Cart is empty!</h3>
+
+<li ng-repeat="phone in phones" class="thumbnail">
+    <a ng-href="single-phone/{{phone.id}}" class="thumb">
+        <img alt="{{phone.name}}" ng-src="{{phone.images[0]}}">
+    </a>
+    <a ng-href="single-phone/{{phone.id}}" ng-bind="phone.name"></a>
+    <p ng-bind="phone.description | DescriptionFilter:175" ></p>
+    <div>
+        <div ng-click="SetAmount($index , -1 )" class="btn btn-primary" >-</div>
+        <input ng-model="phone.amount" >
+        <div ng-click="SetAmount($index , 1 )" class="btn btn-primary" >+</div>
+        <div ng-click="RemovePhone( $index )" class="btn btn-danger" >Remove</div>
+    </div>
+</li>

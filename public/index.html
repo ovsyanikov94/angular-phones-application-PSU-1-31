@@ -9,12 +9,15 @@
 
     <link rel="stylesheet" href="../bower_components/owl.carousel/dist/assets/owl.carousel.css">
     <link rel="stylesheet" href="../bower_components/owl.carousel/dist/assets/owl.theme.default.css">
+    <link rel="stylesheet" href="../node_modules/angular-loading-bar/src/loading-bar.css">
 
     <script src="../bower_components/jquery/dist/jquery.js" ></script>
 
     <script src="../bower_components/owl.carousel/dist/owl.carousel.js" ></script>
 
     <script src="../node_modules/angular/angular.js" ></script>
+    <script src="../node_modules/angular-loading-bar/src/loading-bar.js" ></script>
+
     <script src="../node_modules/angular-route/angular-route.js" ></script>
     <script src="../node_modules/angular-cookies/angular-cookies.js" ></script>
     <script src="../node_modules/angular-local-storage/dist/angular-local-storage.js" ></script>
@@ -28,8 +31,33 @@
 <body>
 <div>
 
+    <div><span class="fa fa-spinner"></span></div>
+
     <div>
         <div class="container-fluid" >
+
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" ng-href="/angular-phones-application-PSU-1-31/public/">AngularJS</a>
+                    </div>
+
+                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav">
+                            <li class="active"><a ng-href="/angular-phones-application-PSU-1-31/public/">Home <span class="sr-only">(current)</span></a></li>
+                            <li><a ng-href="cart">Cart</a></li>
+                        </ul>
+                    </div><!-- /.navbar-collapse -->
+                </div><!-- /.container-fluid -->
+            </nav>
 
             <div class="row">
 
@@ -52,7 +80,7 @@
                     </section>
 
                     <section ng-controller="CartController" >
-                        <p>Shopping Cart</p>
+                        <a ng-href="cart"><p>Shopping Cart</p></a>
                         <div ng-if="cart.length !== 0" >
                             <button ng-click="ClearCart()" >Clear cart</button>
                         </div>

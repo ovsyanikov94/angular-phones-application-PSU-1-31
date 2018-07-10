@@ -101,8 +101,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _services_CartService__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./services/CartService */ "./application/services/CartService.js");
 /* harmony import */ var _services_PhoneService__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./services/PhoneService */ "./application/services/PhoneService.js");
 /* harmony import */ var _filters_SearchPhonesFilter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./filters/SearchPhonesFilter */ "./application/filters/SearchPhonesFilter.js");
-/* harmony import */ var _directives_phones_list__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./directives/phones-list */ "./application/directives/phones-list.js");
-/* harmony import */ var _directives_single_phone_directive__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./directives/single-phone-directive */ "./application/directives/single-phone-directive.js");
+/* harmony import */ var _filters_DescriptionFilter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./filters/DescriptionFilter */ "./application/filters/DescriptionFilter.js");
+/* harmony import */ var _directives_phones_list__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./directives/phones-list */ "./application/directives/phones-list.js");
+/* harmony import */ var _directives_single_phone_directive__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./directives/single-phone-directive */ "./application/directives/single-phone-directive.js");
+/* harmony import */ var _directives_cart_directive__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./directives/cart-directive */ "./application/directives/cart-directive.js");
 
 
 //====================CONTROLLERS===========================//
@@ -117,7 +119,10 @@ __webpack_require__.r(__webpack_exports__);
 //====================FILTERS==============================//
 
 
+
 //====================DIRECTIVES==============================//
+
+
 
 
 
@@ -136,6 +141,9 @@ angular.module('PhoneApplication.controllers')
 angular.module('PhoneApplication.filters')
     .filter('SearchPhonesFilter' ,  _filters_SearchPhonesFilter__WEBPACK_IMPORTED_MODULE_5__["default"]); // test | SearchPhonesFilter
 
+angular.module('PhoneApplication.filters')
+    .filter('DescriptionFilter' ,  _filters_DescriptionFilter__WEBPACK_IMPORTED_MODULE_6__["default"]); // test | DescriptionFilter
+
 angular.module('PhoneApplication.controllers')
     .controller(
         'ExampleController' ,
@@ -147,18 +155,23 @@ angular.module('PhoneApplication.controllers')
     );
 
 angular.module('PhoneApplication.services')
-    .service( 'CartService'  ,[ 'localStorageService' , _services_CartService__WEBPACK_IMPORTED_MODULE_3__["default"] ]);
+    .service( 'CartService'  ,[ 'localStorageService' , 'PhoneService' , _services_CartService__WEBPACK_IMPORTED_MODULE_3__["default"] ]);
 
 angular.module('PhoneApplication.services')
     .service( 'PhoneService'  , [ '$http' , _services_PhoneService__WEBPACK_IMPORTED_MODULE_4__["default"] ]);
 
 angular.module('PhoneApplication.directives' )
-    .directive('phonesListDirective' , _directives_phones_list__WEBPACK_IMPORTED_MODULE_6__["default"]);
+    .directive('phonesListDirective' , _directives_phones_list__WEBPACK_IMPORTED_MODULE_7__["default"]);
 
 angular.module('PhoneApplication.directives' )
-    .directive('singlePhoneDirective' , _directives_single_phone_directive__WEBPACK_IMPORTED_MODULE_7__["default"]);
+    .directive('singlePhoneDirective' , _directives_single_phone_directive__WEBPACK_IMPORTED_MODULE_8__["default"]);
+
+angular.module('PhoneApplication.directives' )
+    .directive('cartDirective' , _directives_cart_directive__WEBPACK_IMPORTED_MODULE_9__["default"]);
+
 
 let app = angular.module('PhoneApplication',[
+    'angular-loading-bar',
     'ngRoute',
     'LocalStorageModule',
     'PhoneApplication.controllers',
@@ -171,9 +184,13 @@ app.config( [
     '$routeProvider' ,
     '$locationProvider' ,
     'localStorageServiceProvider' ,
-    ($routeProvider , $locationProvider , localStorageServiceProvider)=>{
+    'cfpLoadingBarProvider',
+    ($routeProvider , $locationProvider , localStorageServiceProvider , cfpLoadingBarProvider)=>{
 
     $locationProvider.html5Mode(true);
+
+    cfpLoadingBarProvider.includeSpinner = true;
+    cfpLoadingBarProvider.includeBar = true;
 
     localStorageServiceProvider.setStorageCookie( 7 , '/' );
     localStorageServiceProvider.setStorageCookieDomain('localhost');
@@ -203,6 +220,24 @@ app.config( [
                 return PhoneService.getSinglePhone(`phones/${id}.json`);
 
             } ]
+
+        }
+
+    });
+
+    $routeProvider.when('/cart' , {
+
+        templateUrl: 'templates/cart.html',
+        controller: [ '$scope' , 'phones' , function ($scope , phones ){
+
+            $scope.phones = phones;
+
+        } ],
+        resolve: {
+
+            'phones': [ 'CartService' , async function ( CartService ){
+                return await  CartService.getFullPhones();
+            }]
 
         }
 
@@ -269,6 +304,8 @@ class CatalogueController{
 
         $scope.phones = phones;
 
+        //setInterval( PhoneService.getPhones.bind(PhoneService , `phones/phones.json`) , 20 );
+
     }//constructor
 
 }
@@ -297,6 +334,74 @@ class PhoneController{
     }
 
 }
+
+/***/ }),
+
+/***/ "./application/directives/cart-directive.js":
+/*!**************************************************!*\
+  !*** ./application/directives/cart-directive.js ***!
+  \**************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return CartDirective; });
+
+
+
+function CartDirective(){
+
+    return {
+
+        restrict: 'AE',
+        scope:{
+            phones: '='
+        },
+        templateUrl: 'templates/directives/cart-directive.html',
+        controller: ['$scope' , 'CartService' , function ( $scope , CartService ){
+
+            $scope.cart = CartService.getCart();
+
+            CartService.OnItemRemove( ( index )=>{
+
+                $scope.phones.splice(index , 1);
+
+            } );
+
+            // $scope.$watch( 'cart.length' , async function (){
+            //
+            //     $scope.phones = await CartService.getFullPhones();
+            //     $scope.$apply();
+            //
+            // } );
+            
+            $scope.SetAmount = function ( index , amount ){
+
+                $scope.cart[index].amount += amount;
+                $scope.phones[index].amount += amount;
+
+                if( $scope.cart[index].amount === 0 ){
+
+                    $scope.cart.splice( index , 1 );
+                    $scope.phones.splice( index , 1 );
+
+                }//if
+
+            }
+
+            $scope.RemovePhone = function ( index ){
+
+                $scope.cart.splice( index , 1 );
+                $scope.phones.splice( index , 1 );
+
+            }//RemovePhone
+
+        }]
+
+    };
+
+}//CartDirective
 
 /***/ }),
 
@@ -394,6 +499,30 @@ function SinglePhoneDirective(){
 
 /***/ }),
 
+/***/ "./application/filters/DescriptionFilter.js":
+/*!**************************************************!*\
+  !*** ./application/filters/DescriptionFilter.js ***!
+  \**************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return DescriptionFilter; });
+
+
+function DescriptionFilter(){
+
+    return function ( str , maxLength){
+
+        return str.length < maxLength ? str : `${str.substring(0 , maxLength)}...`;
+
+    }
+
+}
+
+/***/ }),
+
 /***/ "./application/filters/SearchPhonesFilter.js":
 /*!***************************************************!*\
   !*** ./application/filters/SearchPhonesFilter.js ***!
@@ -438,7 +567,7 @@ __webpack_require__.r(__webpack_exports__);
 
 class CartService{
 
-    constructor( localStorageService ){
+    constructor( localStorageService , PhoneService ){
 
        if(localStorageService.get('cart')){
            this.cart = localStorageService.get('cart');
@@ -448,6 +577,7 @@ class CartService{
        }//else
 
        this.localStorageService = localStorageService;
+       this._phoneService = PhoneService;
 
     }//constructor
 
@@ -503,12 +633,39 @@ class CartService{
 
     }
 
+    OnItemRemove ( callback ){
+        this._removeCallback = callback;
+    }
+
     removePhone( index ){
 
         this.cart.splice( index , 1 );
+
+        if( this._removeCallback ){
+            this._removeCallback(index);
+        }//if
+
         this.localStorageService.set( 'cart' , this.cart );
 
     }//removePhone
+
+    async getFullPhones () {
+
+        let phones = [];
+
+        for ( let i = 0 ; i < this.cart.length ; i++  ){
+
+            let cartPhone = this.cart[i];
+            let phone = await this._phoneService.getSinglePhone( `phones/${cartPhone.id}.json` );
+            phone.amount = cartPhone.amount;
+
+            phones.push( phone );
+
+        }//for i
+
+        return phones;
+
+    }
 
 }
 
